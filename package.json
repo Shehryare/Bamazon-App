@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Shehryare/Bamazon-App-#readme",
   "dependencies": {
     "inquire": "^0.4.8",
+    "inquirer": "^7.0.0",
     "mysql": "^2.17.1"
   }
 }
