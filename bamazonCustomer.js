@@ -13,14 +13,20 @@ var connection = mysql.createConnection({
 
     // Your password
     password: "Applejuice670",
-    database: "greatBay_DB"
+    database: "bamazon"
 });
 
 // connect to the mysql server and sql database
-connection.connect(function (err) {
+connection.connect(function (err, data) {
     if (err) throw err;
+    connection.query("SELECT item_id, product_name FROM products", function (err, result, fields) {
+        if (err) throw err;
+        console.log(result);
+        // console.log(fields);
+
+    });
     // run the start function after the connection is made to prompt the user
-    start();
+    // start();
 });
 
 function start() {
@@ -62,6 +68,6 @@ function nextQuestion() {
 }
 
 
-function tryagain(){
+function tryagain() {
     console.log("Please Try Again")
 }
