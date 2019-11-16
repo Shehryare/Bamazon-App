@@ -19,35 +19,48 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function (err, data) {
     if (err) throw err;
-    connection.query("SELECT item_id, product_name FROM products", function (err, result, fields) {
-        if (err) throw err;
-        console.log(result);
-        // console.log(fields);
-
-    });
-    // run the start function after the connection is made to prompt the user
-    // start();
+    products();
+    start();
 });
+// run the start function after the connection is made to prompt the user
+
 
 function start() {
     inquirer
         .prompt({
             name: "IDNumber",
             type: "number",
-            message: "What is the ID number of the product you would like to buy?",
-            choices: Number
+            message: "What is the ID number of the product you would like to buy?\n\n",
+            choices: iDNumber()
         })
         .then(function (answer) {
             // based on their answer, either call the bid or the post functions
-            if (answer.IDNumber === Number) {
+            if (answer.IDNumber === 1,2,3,4,5,6,7,8,9,10) {
                 nextQuestion();
             }
-            else if (answer.IDNumber === null) {
-                tryagain()
-            } else {
+            else if (answer.IDNumber === NaN) {
+                console.log("Please Try Again")
+            }
+            else {
                 connection.end();
             }
         });
+}
+
+function products() {
+    connection.query("SELECT item_id, product_name FROM products", function (err, result, fields) {
+        if (err) throw err;
+        console.log(result);
+    });
+}
+
+function iDNumber(id){
+    function id(){
+        var idArr = [1,2,3,4,5,6,7,8,9,10]
+        for(i=0; i < idArr; i++){
+            idArr[i];
+        }
+    }
 }
 
 function nextQuestion() {
@@ -55,7 +68,7 @@ function nextQuestion() {
         .prompt({
             name: "Quantity",
             type: "number",
-            message: "How many units of the product would you like to buy?",
+            message: "\nHow many units of the product would you like to buy?",
             choices: Number
         })
         .then(function (answer) {
@@ -65,9 +78,4 @@ function nextQuestion() {
                 console.log(`Insufficient quantity!`);
             }
         })
-}
-
-
-function tryagain() {
-    console.log("Please Try Again")
 }
