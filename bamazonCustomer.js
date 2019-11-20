@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var consoleTable = require("console.table")
+var consoleTable = require("cli-table")
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -20,63 +20,78 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function (err, data) {
     if (err) throw err;
-    products();
-    start();
 });
-// run the start function after the connection is made to prompt the user
-
-
-function start() {
-    inquirer
-        .prompt({
-            name: "IDNumber",
-            type: "number",
-            message: "What is the ID number of the product you would like to buy?\n\n",
-            choices: iDNumber()
-        })
-        .then(function (answer) {
-            // based on their answer, either call the bid or the post functions
-            if (answer.IDNumber === 1,2,3,4,5,6,7,8,9,10) {
-                nextQuestion();
-            }
-            else if (answer.IDNumber === NaN) {
-                console.log("Please Try Again")
-            }
-            else {
-                connection.end();
-            }
-        });
-}
 
 function products() {
-    connection.query("SELECT item_id, product_name FROM products", function (err, result, fields) {
+    connection.query("SELECT * FROM products", function (err, result) {
         if (err) throw err;
-        console.log(result);
-    });
-}
-
-function iDNumber(id){
-    function id(){
-        var idArr = [1,2,3,4,5,6,7,8,9,10]
-        for(i=0; i < idArr; i++){
-            idArr[i];
+        var displayTable = new Table({
+            head: ['item_id', 'product_name', 'department_name', 'price', 'stock_quantity'],
+            colWidths: [10, 25, 25, 10, 14]
+        });
+        for (var i = 0; i < res.length; i++) {
+            displayTable.push([result[i].item_id, result[i].product_name, result[i].department_name, result[i].price, result[i].stock_quantity])
+            console.log(displayTable.toString());
+            start();
         }
-    }
-}
+    })
+};
 
-function nextQuestion() {
+// run the start function after the connection is made to prompt the user
+function start() {
     inquirer
-        .prompt({
+        .prompt([{
+            name: "IDNumber",
+            type: "input",
+            message: "What is the ID number of the product you would like to buy?\n\n",
+            filter: Number
+        },
+        {
             name: "Quantity",
-            type: "number",
-            message: "\nHow many units of the product would you like to buy?",
-            choices: Number
-        })
+            type: "input",
+            message: "How many items do you wish to purchase?",
+            filter: Number
+        },
+        ])
         .then(function (answer) {
-            if (answer.Quantity === Number) {
-                placeOrder()
-            } else {
-                console.log(`Insufficient quantity!`);
-            }
-        })
-}
+            // based on their answer, either call the bid or the post functions
+            var quantityNeeded = answers.Quantity;
+            var IDrequested = answers.ID;
+            order(IDrequested, quantityNeeded);
+        });
+};
+
+
+
+function products() {
+    connection.query("SELECT * FROM products", function (err, result) {
+        if (err) throw err;
+        var displayTable = new Table({
+            head: ['item_id', 'product_name', 'department_name', 'price', 'stock_quantity'],
+            colWidths: [10, 25, 25, 10, 14]
+        });
+        for (var i = 0; i < res.length; i++) {
+            displayTable.push([result[i].item_id, result[i].product_name, result[i].department_name, result[i].price, result[i].stock_quantity])
+            console.log(displayTable.toString());
+            start();
+        }
+    })
+};
+
+
+// function nextQuestion() {
+//     inquirer
+//         .prompt({
+//             name: "Quantity",
+//             type: "number",
+//             message: "\nHow many units of the product would you like to buy?",
+//             choices: Number
+//         })
+//         .then(function (answer) {
+//             if (answer.Quantity === Number) {
+//                 placeOrder()
+//             } else {
+//                 console.log(`Insufficient quantity!`);
+//             }
+//         })
+// };
