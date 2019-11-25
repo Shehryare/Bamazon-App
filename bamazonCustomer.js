@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var consoleTable = require("cli-table")
+var Table = require("cli-table")
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -20,78 +20,48 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function (err, data) {
     if (err) throw err;
+    allProducts();
 });
 
-function products() {
-    connection.query("SELECT * FROM products", function (err, result) {
+function allProducts() {
+    connection.query("SELECT item_id, product_name, department_name, price, stock_quantity FROM products", function (err, response) {
         if (err) throw err;
-        var displayTable = new Table({
-            head: ['item_id', 'product_name', 'department_name', 'price', 'stock_quantity'],
-            colWidths: [10, 25, 25, 10, 14]
-        });
-        for (var i = 0; i < res.length; i++) {
-            displayTable.push([result[i].item_id, result[i].product_name, result[i].department_name, result[i].price, result[i].stock_quantity])
-            console.log(displayTable.toString());
-            start();
-        }
-    })
-};
+        console.table(response);
+        shopProducts();
+    });
+}
 
-// run the start function after the connection is made to prompt the user
-function start() {
-    inquirer
-        .prompt([{
-            name: "IDNumber",
+function shopProducts() {
+    inquirer.prompt([
+        {
+            name: "item_id",
             type: "input",
-            message: "What is the ID number of the product you would like to buy?\n\n",
-            filter: Number
+            message: "Enter the item_id for the product you would like to purchase ?"
         },
         {
-            name: "Quantity",
+            name: "quantity",
             type: "input",
-            message: "How many items do you wish to purchase?",
-            filter: Number
-        },
-        ])
-        .then(function (answer) {
-            // based on their answer, either call the bid or the post functions
-            var quantityNeeded = answers.Quantity;
-            var IDrequested = answers.ID;
-            order(IDrequested, quantityNeeded);
-        });
-};
+            message: "How many would you like to purchase ?"
+        }]).then(function (response) {
+            var item_id = parseInt(response.item_id);
+            var quantity = parseInt(response.quantity);
+            var total;
+            var updateQuantity;
 
-
-
-function products() {
-    connection.query("SELECT * FROM products", function (err, result) {
-        if (err) throw err;
-        var displayTable = new Table({
-            head: ['item_id', 'product_name', 'department_name', 'price', 'stock_quantity'],
-            colWidths: [10, 25, 25, 10, 14]
-        });
-        for (var i = 0; i < res.length; i++) {
-            displayTable.push([result[i].item_id, result[i].product_name, result[i].department_name, result[i].price, result[i].stock_quantity])
-            console.log(displayTable.toString());
-            start();
-        }
-    })
-};
-
-
-// function nextQuestion() {
-//     inquirer
-//         .prompt({
-//             name: "Quantity",
-//             type: "number",
-//             message: "\nHow many units of the product would you like to buy?",
-//             choices: Number
-//         })
-//         .then(function (answer) {
-//             if (answer.Quantity === Number) {
-//                 placeOrder()
-//             } else {
-//                 console.log(`Insufficient quantity!`);
-//             }
-//         })
-// };
+            connection.query("SELECT * FROM products WHERE ?", { item_id: item_id }, function (err, response) {
+                if (err) throw err;
+                if (quantity > response[0].stock_quantity) {
+                    console.log("\nInsufficient Quantity!")
+                } else {
+                    total = quantity * response[0].price;
+                    updateQuantity = response[0].stock_quantity - quantity;
+                    console.log("\nYou purchased " + quantity + " " + response[0].product_name + "\n\nYour total is: $" + total);
+                    connection.query("UPDATE products SET ? WHERE ?", [{ stock_quantity: updateQuantity }, { item_id: item_id }], function (err, response) {
+                        if (err) throw err;
+                        console.log("\nInventory Updated")
+                    })
+                }
+                connection.end();
+            })
+        })
+}
