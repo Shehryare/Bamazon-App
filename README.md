@@ -1,12 +1,12 @@
-# Bamazon-App-
+# Bamazon-App
 
 
 Welcome to the Bamazon App. This command line application consits of three specific functions 
 
--Customer 
--Manager
+###### Customer 
+###### Manager
 
-#Customer file:
+## Customer file:
 
 Upon running the customer file, the you will be shown a table of the Bamazon inventory, which you will need to select the the "item_id" of the item you wish to purshase. 
 
